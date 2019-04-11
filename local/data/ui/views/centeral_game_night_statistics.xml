@@ -1,0 +1,224 @@
+<dashboard>
+  <label>Central Game Night Statistics</label>
+  <description>TODO: Token for total games played, get win % settled.</description>
+  <row>
+    <panel>
+      <single>
+        <search>
+          <query>| inputlookup plays.csv
+| search game=*
+| stats count</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="rangeColors">["0x53a051","0x53a051"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="underLabel">Amount of Games Logged</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <search>
+          <query>| inputlookup plays.csv
+| search game=*
+| stats dc(date) as date</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="rangeColors">["0x53a051","0x006d9c"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="underLabel">Number of Game Nights</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <chart>
+        <title>Games Played</title>
+        <search>
+          <query>| inputlookup plays.csv
+| stats count by game</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.chart">pie</option>
+        <option name="charting.drilldown">none</option>
+      </chart>
+    </panel>
+    <panel>
+      <chart>
+        <title>Winners</title>
+        <search>
+          <query>| inputlookup plays.csv
+| eval winners=split(replace(first,", ",","),",")
+| stats values(winners) as winners  by date game outing 
+| mvexpand winners
+| stats count by winners
+| where winners!="COOP-Loss"</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.chart">pie</option>
+        <option name="charting.drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Top Games Played</title>
+        <search>
+          <query>| inputlookup plays.csv
+| stats count by game
+| table game count
+| sort - count
+| rename game as Game
+count as Plays</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="count">5</option>
+        <option name="drilldown">none</option>
+        <format type="color" field="Plays">
+          <colorPalette type="minMidMax" maxColor="#53A051" minColor="#FFFFFF"></colorPalette>
+          <scale type="minMidMax"></scale>
+        </format>
+      </table>
+    </panel>
+    <panel>
+      <table>
+        <title>Top 5 Winners</title>
+        <search>
+          <query>| inputlookup plays.csv
+| eval winners=split(replace(first,", ",","),",")
+| stats values(winners) as winners  by date game outing 
+| mvexpand winners
+| stats count by winners
+| where winners!="COOP-Loss"
+| table winners count
+| sort - count
+| rename count as Victories
+winners as Winners</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="count">5</option>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+        <format type="color" field="Victories">
+          <colorPalette type="minMidMax" maxColor="#006D9C" minColor="#FFFFFF"></colorPalette>
+          <scale type="minMidMax"></scale>
+        </format>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Win Rate</title>
+        <search>
+          <query>| inputlookup plays.csv
+| eval players=split(replace(players,", ",","),",")
+| stats values(players) as players  by date game outing first id
+| mvexpand players
+| eval first=split(replace(first,", ",","),",")
+| mvexpand first
+| stats sum(eval(if(first=players,1,0))) as wins dc(id) as plays by players
+| search plays&gt;5
+| eval WinRate=round(wins/plays*100,2)
+| sort -WinRate</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">none</option>
+        <format type="number" field="WinRate">
+          <option name="unit">%</option>
+        </format>
+        <format type="color" field="WinRate">
+          <colorPalette type="minMidMax" maxColor="#006D9C" minColor="#FFFFFF"></colorPalette>
+          <scale type="minMidMax"></scale>
+        </format>
+      </table>
+    </panel>
+    <panel>
+      <chart>
+        <title>Win Rate</title>
+        <search>
+          <query>| inputlookup plays.csv
+| eval players=split(replace(players,", ",","),",")
+| stats values(players) as players  by date game outing first id
+| mvexpand players
+| eval first=split(replace(first,", ",","),",")
+| mvexpand first
+| stats sum(eval(if(first=players,1,0))) as wins dc(id) as plays by players
+| search plays&gt;5
+| eval WinRate=round(wins/plays*100,2)
+| sort -WinRate
+| fields - wins plays</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.axisLabelsY.majorUnit">10</option>
+        <option name="charting.axisTitleX.text">Players</option>
+        <option name="charting.axisTitleY.text">WIN PERCENTAGE</option>
+        <option name="charting.axisY.maximumNumber">100</option>
+        <option name="charting.axisY.minimumNumber">0</option>
+        <option name="charting.chart">bar</option>
+        <option name="charting.chart.showDataLabels">all</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <chart>
+        <title>Wins over Time</title>
+        <search>
+          <query>| inputlookup plays.csv
+| eval _time=strptime(date,"%Y/%m/%d")
+| eval winners=split(replace(first,", ",","),",")
+| mvexpand winners
+| timechart span=1d dc(id) as Wins by winners</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.chart">area</option>
+        <option name="charting.drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <chart>
+        <title>Attendance</title>
+        <search>
+          <query>| inputlookup plays.csv
+| eval winners=split(replace(first,", ",","),",")
+
+| eval players=split(replace(players,", ",","),",")
+| mvexpand players
+| stats count as attendence by players
+| sort - attendence</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+  </row>
+</dashboard>

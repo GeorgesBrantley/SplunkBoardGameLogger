@@ -1,0 +1,225 @@
+<form>
+  <label>Edit Games</label>
+  <description>Edit Games in CSV</description>
+  <fieldset submitButton="true" autoRun="false">
+    <input type="dropdown" token="selectedGame">
+      <label>Select Game To Edit</label>
+      <fieldForLabel>game</fieldForLabel>
+      <fieldForValue>game</fieldForValue>
+      <search>
+        <query>| inputlookup games.csv
+| stats count by game</query>
+        <earliest>0</earliest>
+        <latest></latest>
+      </search>
+    </input>
+    <input type="text" token="editGame">
+      <label>New Game Name:</label>
+    </input>
+    <input type="dropdown" token="editPlayerMin">
+      <label>New Player Count (Min)</label>
+      <choice value="2">2 Player</choice>
+      <choice value="3">3 Player</choice>
+      <choice value="4">4 Player</choice>
+      <choice value="5">5 Player</choice>
+      <choice value="6">6 Player</choice>
+      <choice value="7">7 Player</choice>
+      <choice value="8">8 Player</choice>
+      <choice value="9">9 Player</choice>
+      <choice value="10">10 Player</choice>
+      <choice value="11">10+ Player</choice>
+    </input>
+    <input type="dropdown" token="editPlayerMax">
+      <label>New Player Count (Max)</label>
+      <choice value="2">2 Player</choice>
+      <choice value="3">3 Player</choice>
+      <choice value="4">4 Player</choice>
+      <choice value="5">5 Player</choice>
+      <choice value="6">6 Player</choice>
+      <choice value="7">7 Player</choice>
+      <choice value="8">8 Player</choice>
+      <choice value="9">9 Player</choice>
+      <choice value="10">10 Player</choice>
+      <choice value="11">10+ Player</choice>
+    </input>
+    <input type="dropdown" token="editDiff">
+      <label>New Rules Difficulty</label>
+      <choice value="1">Easy</choice>
+      <choice value="2">Moderate</choice>
+      <choice value="3">Hard</choice>
+      <choice value="4">Insane</choice>
+    </input>
+    <input type="dropdown" token="editHours">
+      <label>New Play Time (Hrs)</label>
+      <choice value=".5">30 Minutes</choice>
+      <choice value="1">1 Hour</choice>
+      <choice value="1.5">1 Hour 30 Minutes</choice>
+      <choice value="2">2 Hours</choice>
+      <choice value="3">3 Hours</choice>
+      <choice value="4">4 Hours</choice>
+      <choice value="5">5 Hours (+)</choice>
+    </input>
+    <input type="multiselect" token="editType">
+      <label>Type Of Game</label>
+      <choice value="Area Control">Area Control</choice>
+      <choice value="Card Game">Card Game</choice>
+      <choice value="Hidden Movement">Hidden Movement</choice>
+      <choice value="Empire">Empire</choice>
+      <choice value="Hidden Role">Hidden Role</choice>
+      <choice value="Investigation">Investigation</choice>
+      <choice value="Abstract">Abstract</choice>
+      <choice value="Real Time">Real Time</choice>
+      <choice value="Push Your Luck">Push Your Luck</choice>
+      <choice value="Dungeon Crawler">Dungeon Crawler</choice>
+      <choice value="Word Association">Word Association</choice>
+      <choice value="Negotiation">Negotiation</choice>
+      <choice value="Teams">Teams</choice>
+      <choice value="1vAll">1vAll</choice>
+      <choice value="Coop">Coop</choice>
+      <choice value="52 Cards">52 Cards</choice>
+      <delimiter>, </delimiter>
+    </input>
+    <input type="radio" token="edit">
+      <label>Initiate Edit List</label>
+      <choice value="1">EDIT</choice>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <html>
+        <center>
+        <form action="/en-US/app/BGLogger/edit_games?">
+        <input type="submit" value="CLEAN REFRESH"/>
+        </form>
+        </center>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Current Game Database</title>
+        <search>
+          <query>| inputlookup games.csv
+| table game playerMin playerMax difficulty hours type</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <refresh>10s</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <single>
+        <search>
+          <query>| makeresults
+| eval print="Edit Data"
+| table print</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="height">50</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <search>
+          <done>
+            <unset token="form.edit"></unset>
+            <unset token="edit"></unset>
+            <unset token="form.game"></unset>
+            <unset token="editGame"></unset>
+            <unset token="editType"></unset>
+            <unset token="form.editType"></unset>
+            <unset token="form.editGame"></unset>
+            <unset token="editHours"></unset>
+            <unset token="form.editHours"></unset>
+            <unset token="editPlayerMin"></unset>
+            <unset token="form.editPlayerMin"></unset>
+            <unset token="editPlayerMax"></unset>
+            <unset token="form.editPlayerMax"></unset>
+            <unset token="editDiff"></unset>
+            <unset token="form.editDiff"></unset>
+            <unset token="selectedGame"></unset>
+            <unset token="form.selectedGame"></unset>
+          </done>
+          <query>| inputlookup games.csv
+| eval edit="$edit$"
+| table game playerMin playerMax difficulty hours type
+| eval playerMin=if(game="$selectedGame$","$editPlayerMin$",playerMin)
+| eval playerMax=if(game="$selectedGame$","$editPlayerMax$",playerMax)
+| eval difficulty=if(game="$selectedGame$","$editDiff$",difficulty)
+| eval hours=if(game="$selectedGame$","$editHours$",hours)
+| eval game=if(game="$selectedGame$","$editGame$",'game')
+| eval type=if(game="$selectedGame$","$editType$",type)
+| outputlookup games.csv</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <single>
+        <search>
+          <query>| makeresults
+| eval print="Reset Data"
+| table print</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="height">50</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Press, Hit submit, then refresh page</title>
+      <input type="radio" token="conf">
+        <label>Reset Games List</label>
+        <choice value="1">RESET</choice>
+      </input>
+    </panel>
+  </row>
+  <row depends="$conf$">
+    <panel>
+      <table>
+        <title>Reset Table</title>
+        <search>
+          <done>
+            <unset token="form.conf"></unset>
+            <unset token="conf"></unset>
+          </done>
+          <query>|makeresults
+          | eval conf=$conf$
+          | table game playerMin playerMax difficulty hours type
+| outputlookup games.csv</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+</form>

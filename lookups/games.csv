@@ -1,0 +1,37 @@
+game,playerMin,playerMax,difficulty,hours,type
+Root,3,6,3,"1.5",Empire
+Arboretum,2,4,2,1,"Card Game"
+Quantum,2,4,2,1,"Area Control"
+"Fury of Dracula",2,5,3,4,"Hidden Movement,1vAll"
+"Letters from Whitechapel",2,4,1,2,"Hidden Movement,1vAll"
+"Twilight Imperium 3rd Edition",4,8,4,5,Empire
+"Twilight Imperium 4th Edition",4,6,4,5,Empire
+Resistance,5,10,1,1,"Hidden Role"
+"Secret Hitler",7,10,1,"1.5","Hidden Role"
+"Sherlock Holmes",2,5,1,3,"Investigation,Coop"
+Azul,2,4,1,1,Abstract
+Hive,2,2,1,"0.5",Abstract
+Inis,2,4,2,"1.5","Area Control"
+"Love Letter",2,4,1,"0.5","Card Game"
+"Imperial 2030",3,6,3,2,"Area Control"
+"Game of Thrones",4,6,4,4,"Area Control"
+Rex,6,6,4,4,"Area Control,Negotiation,Teams"
+"Fox in the Forest",2,2,1,"0.5","Card Game"
+Metagame,2,8,1,"0.5","Card Game"
+Mysterium,2,7,2,"1.5","Coop,Investigation"
+XCOM,2,4,2,"1.5","Real Time,Coop"
+"Captain Sonar",4,8,2,"1.5","Real Time,Teams"
+"Space Cadets",4,8,2,2,"Real Time,Coop"
+"Samuri Spirit",3,7,1,1,"Card Game"
+"Dark Souls",2,4,2,3,"Dungeon Crawler,Coop"
+"Code Names",4,10,1,1,"Word Association,Teams"
+"Sheriff of Notingham",4,5,2,1,Negotiation
+Diplomacy,7,7,3,5,Negotiation
+Netrunner,2,2,2,1,"Card Game"
+"Cosmic Encounter",5,6,2,"1.5",Negotiation
+"Two Rooms and a Boom",8,20,1,"0.5","Hidden Role"
+Decrypto,4,10,2,"1.5","Word Association,Teams"
+Hearts,4,5,1,1,"Card Game,52 Cards"
+"Fight the Landlord",3,3,1,1,"Card Game,52 Cards, 1vAll"
+Eurchre,4,4,2,1,"Card Game,52 Cards,Teams"
+"Fog of Love",2,2,2,"1.5","Card Game, Coop"

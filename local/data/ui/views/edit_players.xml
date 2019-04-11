@@ -1,0 +1,163 @@
+<form>
+  <label>Edit Players</label>
+  <description>Edit Players in CSV</description>
+  <fieldset submitButton="true" autoRun="false">
+    <input type="dropdown" token="selectedPlayer" searchWhenChanged="true">
+      <label>Select Player To Edit</label>
+      <fieldForLabel>name</fieldForLabel>
+      <fieldForValue>name</fieldForValue>
+      <search>
+        <query>| inputlookup players.csv
+| stats count by name</query>
+        <earliest>0</earliest>
+        <latest></latest>
+      </search>
+    </input>
+    <input type="text" token="editPlayer">
+      <label>New Player Name:</label>
+    </input>
+    <input type="text" token="editShort">
+      <label>New Shorthand</label>
+    </input>
+    <input type="radio" token="edit">
+      <label>Initiate Edit List</label>
+      <choice value="1">EDIT</choice>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <html>
+        <center>
+        <form action="/en-US/app/BGLogger/edit_players?">
+        <input type="submit" value="CLEAN REFRESH"/>
+        </form>
+        </center>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Current Game Database</title>
+        <search>
+          <query>| inputlookup players.csv
+| table name short</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <refresh>10s</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <single>
+        <search>
+          <query>| makeresults
+| eval print="Edit Data"
+| table print</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="height">50</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <search>
+          <done>
+            <unset token="form.edit"></unset>
+            <unset token="edit"></unset>
+            <unset token="form.game"></unset>
+            <unset token="editGame"></unset>
+            <unset token="editType"></unset>
+            <unset token="form.editType"></unset>
+            <unset token="form.editGame"></unset>
+            <unset token="editHours"></unset>
+            <unset token="form.editHours"></unset>
+            <unset token="editPlayerMin"></unset>
+            <unset token="form.editPlayerMin"></unset>
+            <unset token="editPlayerMax"></unset>
+            <unset token="form.editPlayerMax"></unset>
+            <unset token="editDiff"></unset>
+            <unset token="form.editDiff"></unset>
+            <unset token="selectedGame"></unset>
+            <unset token="form.selectedGame"></unset>
+          </done>
+          <query>| inputlookup players.csv
+| eval edit="$edit$"
+| table name short
+| eval name=if(name="$selectedPlayer$","$editPlayer$",name)
+| eval short=if(name="$selectedPlayer$","$editShort$",short)
+| outputlookup players.csv</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <single>
+        <search>
+          <query>| makeresults
+| eval print="Reset Data"
+| table print</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="height">50</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Press, Hit submit, then refresh page</title>
+      <input type="radio" token="conf">
+        <label>Reset Games List</label>
+        <choice value="1">RESET</choice>
+      </input>
+    </panel>
+  </row>
+  <row depends="$conf$">
+    <panel>
+      <table>
+        <title>Reset Table</title>
+        <search>
+          <done>
+            <unset token="form.conf"></unset>
+            <unset token="conf"></unset>
+          </done>
+          <query>|makeresults
+          | eval conf=$conf$
+          | table name short
+| outputlookup players.csv</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+</form>

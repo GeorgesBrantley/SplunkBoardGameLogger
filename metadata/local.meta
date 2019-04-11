@@ -1,0 +1,57 @@
+[app/ui]
+version = 7.1.1
+modtime = 1553281778.535156000
+
+[app/launcher]
+version = 7.1.1
+modtime = 1553281778.537584000
+
+[views/log_game_night]
+owner = admin
+version = 7.1.1
+modtime = 1554383619.350840000
+
+[views/centeral_game_night_statistics]
+owner = admin
+version = 7.1.1
+modtime = 1554396340.774377000
+
+[views/create_players_and_games]
+owner = admin
+version = 7.1.1
+modtime = 1553711155.892615000
+
+[nav/default]
+version = 7.1.1
+modtime = 1554397933.393020000
+
+[views/edit_games]
+access = read : [ * ], write : [ admin, power ]
+export = none
+owner = admin
+version = 7.1.1
+modtime = 1554395423.456713000
+
+[views/create_players]
+access = read : [ * ], write : [ admin, power ]
+export = none
+owner = admin
+version = 7.1.1
+modtime = 1553630139.597626000
+
+[views/edit_players]
+access = read : [ * ], write : [ admin, power ]
+export = none
+owner = admin
+version = 7.1.1
+modtime = 1553630278.935379000
+
+[views/view_databases]
+owner = admin
+version = 7.1.1
+modtime = 1553709068.483558000
+
+[views/game_statistics]
+owner = admin
+version = 7.1.1
+modtime = 1554397951.264091000

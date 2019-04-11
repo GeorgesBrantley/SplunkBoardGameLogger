@@ -1,0 +1,159 @@
+<form>
+  <label>Log Game Night</label>
+  <description>Input Data about Game Night</description>
+  <fieldset submitButton="true" autoRun="false">
+    <input type="dropdown" token="year">
+      <label>Select Year</label>
+      <choice value="2018">2018</choice>
+      <choice value="2019">2019</choice>
+      <choice value="2020">2020</choice>
+      <default>2019</default>
+      <initialValue>2019</initialValue>
+    </input>
+    <input type="dropdown" token="month">
+      <label>Select Month</label>
+      <choice value="01">January</choice>
+      <choice value="02">Feburary</choice>
+      <choice value="03">March</choice>
+      <choice value="04">April</choice>
+      <choice value="05">May</choice>
+      <choice value="06">June</choice>
+      <choice value="07">July</choice>
+      <choice value="08">August</choice>
+      <choice value="09">September</choice>
+      <choice value="10">October</choice>
+      <choice value="11">November</choice>
+      <choice value="12">December</choice>
+    </input>
+    <input type="text" token="day">
+      <label>Enter Day (DD)</label>
+    </input>
+    <input type="dropdown" token="game">
+      <label>Select Game</label>
+      <fieldForLabel>game</fieldForLabel>
+      <fieldForValue>game</fieldForValue>
+      <search>
+        <query>| inputlookup games.csv
+| table game
+| dedup game</query>
+      </search>
+    </input>
+    <input type="multiselect" token="players">
+      <label>Log Players:</label>
+      <delimiter>, </delimiter>
+      <fieldForLabel>name</fieldForLabel>
+      <fieldForValue>name</fieldForValue>
+      <search>
+        <query>| inputlookup players.csv
+| table name</query>
+      </search>
+    </input>
+    <input type="multiselect" token="first">
+      <label>Select Winner(s)</label>
+      <delimiter>, </delimiter>
+      <fieldForLabel>name</fieldForLabel>
+      <fieldForValue>name</fieldForValue>
+      <search>
+        <query>| inputlookup players.csv
+| table name</query>
+      </search>
+      <choice value="COOP-Loss">COOP-Loss</choice>
+    </input>
+    <input type="multiselect" token="second">
+      <label>Select Second Place</label>
+      <delimiter>, </delimiter>
+      <fieldForLabel>name</fieldForLabel>
+      <fieldForValue>name</fieldForValue>
+      <search>
+        <query>| inputlookup players.csv
+| table name</query>
+      </search>
+      <choice value="null">None</choice>
+      <default>null</default>
+      <initialValue>null</initialValue>
+    </input>
+    <input type="multiselect" token="third">
+      <label>Select Third Place</label>
+      <delimiter>, </delimiter>
+      <fieldForLabel>name</fieldForLabel>
+      <fieldForValue>name</fieldForValue>
+      <search>
+        <query>| inputlookup players.csv
+| table name</query>
+      </search>
+      <choice value="null">None</choice>
+      <default>null</default>
+      <initialValue>null</initialValue>
+    </input>
+    <input type="text" token="id">
+      <label>Game Night ID (Random 4-6 digits)</label>
+    </input>
+    <input type="radio" token="outing">
+      <label>Select Outing</label>
+      <choice value="BGN">Board Game Night</choice>
+      <choice value="Generic">Generic</choice>
+      <default>BGN</default>
+      <initialValue>BGN</initialValue>
+    </input>
+  </fieldset>
+  <row depends="$game$">
+    <panel>
+      <table>
+        <search>
+          <done>
+            <unset token="game"></unset>
+            <unset token="players"></unset>
+            <unset token="first"></unset>
+            <unset token="second"></unset>
+            <unset token="third"></unset>
+            <unset token="id"></unset>
+            <unset token="form.game"></unset>
+            <unset token="form.players"></unset>
+            <unset token="form.first"></unset>
+            <unset token="form.second"></unset>
+            <unset token="form.third"></unset>
+            <unset token="form.id"></unset>
+          </done>
+          <query>| inputlookup plays.csv 
+
+| append 
+    [| makeresults 
+    | eval newDay=if(len("$day$")&lt;2,"0".$day$,$day$)
+    | eval date="$year$"."/"."$month$"."/".newDay
+    | eval game="$game$" 
+    | eval players="$players$" 
+    | eval first="$first$" 
+    | eval second=if(like("$second$","null"),"None","$second$")
+    | eval third=if(like("$third$","null"),"None","$third$")
+    | eval outing="$outing$"
+    | eval id="$id$"
+        ] 
+| table id date game players first second third outing
+| outputlookup plays.csv</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <search>
+          <query>| inputlookup plays.csv
+| table id date game players first second third outing</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <refresh>10s</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+</form>

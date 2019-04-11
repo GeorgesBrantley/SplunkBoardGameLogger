@@ -1,0 +1,155 @@
+<form>
+  <label>Create Games</label>
+  <fieldset submitButton="true" autoRun="false">
+    <input type="text" token="game">
+      <label>Game Name:</label>
+    </input>
+    <input type="dropdown" token="playerMin">
+      <label>Player Count (Min)</label>
+      <choice value="2">2 Player</choice>
+      <choice value="3">3 Player</choice>
+      <choice value="4">4 Player</choice>
+      <choice value="5">5 Player</choice>
+      <choice value="6">6 Player</choice>
+      <choice value="7">7 Player</choice>
+      <choice value="8">8 Player</choice>
+      <choice value="9">9 Player</choice>
+      <choice value="10">10 Player</choice>
+      <choice value="11">10+ Player</choice>
+    </input>
+    <input type="dropdown" token="playerMax">
+      <label>Player Count (Max)</label>
+      <choice value="2">2 Player</choice>
+      <choice value="3">3 Player</choice>
+      <choice value="4">4 Player</choice>
+      <choice value="5">5 Player</choice>
+      <choice value="6">6 Player</choice>
+      <choice value="7">7 Player</choice>
+      <choice value="8">8 Player</choice>
+      <choice value="9">9 Player</choice>
+      <choice value="10">10 Player</choice>
+      <choice value="20">10+ Player</choice>
+    </input>
+    <input type="dropdown" token="diff">
+      <label>Rules Difficulty</label>
+      <choice value="1">Easy</choice>
+      <choice value="2">Moderate</choice>
+      <choice value="3">Hard</choice>
+      <choice value="4">Insane</choice>
+    </input>
+    <input type="dropdown" token="hours">
+      <label>Play Time (Hrs)</label>
+      <choice value=".5">30 Minutes</choice>
+      <choice value="1">1 Hour</choice>
+      <choice value="1.5">1 Hour 30 Minutes</choice>
+      <choice value="2">2 Hours</choice>
+      <choice value="3">3 Hours</choice>
+      <choice value="4">4 Hours</choice>
+      <choice value="5">5 Hours (+)</choice>
+    </input>
+    <input type="multiselect" token="type">
+      <label>Type Of Game</label>
+      <choice value="Area Control">Area Control</choice>
+      <choice value="Card Game">Card Game</choice>
+      <choice value="Hidden Movement">Hidden Movement</choice>
+      <choice value="Empire">Empire</choice>
+      <choice value="Hidden Role">Hidden Role</choice>
+      <choice value="Investigation">Investigation</choice>
+      <choice value="Abstract">Abstract</choice>
+      <choice value="Real Time">Real Time</choice>
+      <choice value="Push Your Luck">Push Your Luck</choice>
+      <choice value="Dungeon Crawler">Dungeon Crawler</choice>
+      <choice value="Word Association">Word Association</choice>
+      <choice value="Negotiation">Negotiation</choice>
+      <choice value="Teams">Teams</choice>
+      <choice value="1vAll">1vAll</choice>
+      <choice value="Coop">Coop</choice>
+      <choice value="52 Cards">52 Cards</choice>
+      <delimiter>, </delimiter>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <html>
+        <center>
+        <form action="/en-US/app/BGLogger/create_players_and_games?">
+        <input type="submit" value="CLEAN REFRESH"/>
+        </form>
+        </center>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <single>
+        <search>
+          <query>| makeresults
+| eval print="Create Game:"
+| table print</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="useColors">1</option>
+        <option name="height">50</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <search>
+          <done>
+            <unset token="game"></unset>
+            <unset token="form.game"></unset>
+            <unset token="playerMin"></unset>
+            <unset token="form.playerMin"></unset>
+            <unset token="playerMax"></unset>
+            <unset token="form.playerMax"></unset>
+            <unset token="diff"></unset>
+            <unset token="form.diff"></unset>
+            <unset token="hours"></unset>
+            <unset token="form.hours"></unset>
+          </done>
+          <query>| inputlookup games.csv 
+| append 
+    [| makeresults 
+    | eval game="$game$" 
+    | eval playerMin="$playerMin$" 
+    | eval playerMax="$playerMax$" 
+    | eval difficulty="$diff$" 
+    | eval hours="$hours$"
+    | eval type="$type$"
+        ] 
+| table game playerMin playerMax difficulty hours type
+| outputlookup games.csv</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Current Game Database</title>
+        <search>
+          <query>| inputlookup games.csv
+| table game playerMin playerMax difficulty hours type</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <refresh>10s</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+</form>

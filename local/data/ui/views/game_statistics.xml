@@ -1,0 +1,131 @@
+<dashboard>
+  <label>Game Weight Statistics</label>
+  <row>
+    <panel>
+      <chart>
+        <title>Games Played</title>
+        <search>
+          <query>| inputlookup plays.csv
+| stats count by game</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.chart">pie</option>
+        <option name="charting.drilldown">none</option>
+      </chart>
+    </panel>
+    <panel>
+      <chart>
+        <title>Types of Games Played</title>
+        <search>
+          <query>| inputlookup plays.csv
+| lookup games.csv game as game OUTPUT type
+| eval types=split(replace(type,", ",","),",")
+| mvexpand types
+| stats count by types</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.chart">pie</option>
+        <option name="charting.drilldown">none</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <chart>
+        <title>Total Victories by Weight</title>
+        <search>
+          <query>| inputlookup plays.csv
+| lookup games.csv game as game OUTPUT type difficulty hours
+| eval Weight=difficulty*hours
+| table date, game, Weight, difficulty, hours, first, players,
+| eval winners=split(replace(first,", ",","),",")
+| mvexpand winners
+| stats sum(Weight) as TotalWeight by winners
+| sort - TotalWeight</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.chart">bar</option>
+        <option name="charting.drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <chart>
+        <title>Weight/Game Session (Time*Difficulty)</title>
+        <search>
+          <query>| inputlookup plays.csv
+| lookup games.csv game as game OUTPUT type difficulty hours
+| eval weight=difficulty*hours
+| eval _time=strptime(date,"%Y/%m/%d")
+| timechart span=1d sum(weight) as Weight</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.chart">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">all</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.drilldown">all</option>
+        <option name="refresh.display">progressbar</option>
+        <drilldown>
+          <set token="time">$click.value$</set>
+        </drilldown>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <chart>
+        <title>Victories by Weight</title>
+        <search>
+          <query>| inputlookup plays.csv
+| lookup games.csv game as game OUTPUT type difficulty hours
+| eval weight=difficulty*hours
+| eval _time=strptime(date,"%Y/%m/%d")
+| eval winners=split(replace(first,", ",","),",")
+| mvexpand winners
+| timechart span=1d sum(weight) as Weight by winners</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.axisLabelsY.majorUnit">3</option>
+        <option name="charting.axisY.abbreviation">none</option>
+        <option name="charting.axisY.maximumNumber">15</option>
+        <option name="charting.axisY.minimumNumber">0</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.chart">area</option>
+        <option name="charting.chart.nullValueMode">zero</option>
+        <option name="charting.drilldown">all</option>
+        <option name="refresh.display">progressbar</option>
+        <drilldown>
+          <set token="time">$click.value$</set>
+        </drilldown>
+      </chart>
+    </panel>
+  </row>
+  <row depends="$time$">
+    <panel>
+      <table>
+        <title>$time$</title>
+        <search>
+          <query>| inputlookup plays.csv
+| sort - date
+| eval tt=strftime($time$,"%Y/%m/%d")
+| where date=tt
+| lookup games.csv game as game OUTPUT type difficulty hours
+| eval Weight=difficulty*hours
+| table date, game, Weight, difficulty, hours, first, players,</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+</dashboard>

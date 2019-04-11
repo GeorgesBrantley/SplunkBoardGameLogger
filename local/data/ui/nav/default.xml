@@ -1,0 +1,26 @@
+<nav search_view="search" color="green">
+<collection name="Game Night" label="Game Night">
+  <view name="centeral_game_night_statistics"/>
+  <view name="game_statistics"/>
+
+  <view name="log_game_night"/>
+</collection>
+  
+<collection name="Manage Data" label="Manage Data">
+  <view name="view_databases"/>
+  <collection name="Games" label="Games">
+  	  <view name="create_players_and_games"/>
+      <view name="edit_games"/>
+  </collection>
+  <collection name="Players" label="Players">
+  	  <view name="create_players"/>
+      <view name="edit_players"/>  
+  </collection>
+</collection>
+  
+<collection name="Admin" label="Admin">
+  <view name="search"/>
+  <view name="dashboards" />
+</collection>
+
+</nav>

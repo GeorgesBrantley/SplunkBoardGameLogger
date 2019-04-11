@@ -1,0 +1,85 @@
+<form>
+  <label>Create Players</label>
+  <fieldset submitButton="true" autoRun="false">
+    <input type="text" token="player" searchWhenChanged="true">
+      <label>Player Name:</label>
+    </input>
+    <input type="text" token="short">
+      <label>Short Player Name</label>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <html>
+        <center>
+        <form action="/en-US/app/BGLogger/create_players?">
+        <input type="submit" value="CLEAN REFRESH"/>
+        </form>
+        </center>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <single>
+        <search>
+          <query>| makeresults
+| eval print="Create Player:"
+| table print</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="useColors">1</option>
+        <option name="height">50</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <search>
+          <done>
+            <unset token="player"></unset>
+            <unset token="form.player"></unset>
+            <unset token="short"></unset>
+            <unset token="form.short"></unset>
+          </done>
+          <query>| inputlookup players.csv 
+| append 
+    [| makeresults 
+    | eval name="$player$" 
+    | eval short="$short$"
+        ] 
+| table name short
+| outputlookup players.csv</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Current Game Database</title>
+        <search>
+          <query>| inputlookup players.csv
+| table name short</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <refresh>10s</refresh>
+          <refreshType>delay</refreshType>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+</form>
